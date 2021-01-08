@@ -1,0 +1,22 @@
+{% extends 'base.html' %}
+{% block title %}{{ post.title }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <h1>{{ post.title }}</h1>
+    <h5>{{ post.content }}</h5>
+    <p>{{post.user.first_name}}</p>
+
+    <div class="btn-group">
+        <form action="/posts/{{post.id}}/edit">
+            <button class="btn btn-primary">Edit</button>
+        </form>
+        <form action="/users/{{post.user_id}}">
+            <button class="btn btn-danger mx-1">Cancel</button>
+        </form>
+        <form action="/posts/{{post.id}}/delete">
+            <button class="btn btn-warning">Delete</button>
+        </form>
+    </div>
+</div>
+{% endblock %}

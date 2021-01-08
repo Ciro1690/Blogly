@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+{% block title %}Edit User{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <form method="POST">
+        <h2>Edit a user</h2>
+        <div class="form-group">
+            <label for="first">First Name
+                <input class="form-control" type="text" name="first" value="{{ user.first_name }}">
+            </label>
+        </div>
+        <div class="form-group">
+            <label for="last">Last Name
+                <input class="form-control" type="text" name="last" value="{{ user.last_name }}">
+            </label>
+        </div>
+        <div class="form-group">
+            <label for="url">Image URL
+                <input class="form-control" type="text" name="url" value="{{ user.image_url }}"></label>
+        </div>
+    <div class="row">
+        <button class="btn btn-success">Save</button>
+    </form>
+        <form action="/users/{{user.id}}">
+            <button class="btn btn-danger">Cancel</button>
+        </form>
+    </div>
+</div>
+{% endblock %}

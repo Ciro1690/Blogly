@@ -1,0 +1,24 @@
+{% extends 'base.html' %}
+{% block title %}New Post{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <form method="POST">
+        <h2>Add Post for {{ user.get_full_name() }}</h2>
+        <div class="form-group">
+            <label for="title">Title
+                <input class="form-control" type="text" name="title"></label>
+        </div>
+        <div class="form-group">
+            <label for="content">Content
+                <textarea class="form-control" rows="4" cols="40" name="content"></textarea></label>
+        </div>
+        <div class="btn-group">
+            <button class="btn btn-success mr-1">Add</button>
+    </form>
+            <form action="/users/{{user.id}}">
+                <button class="btn btn-info">Cancel</button>
+            </form>
+        </div>
+</div>
+{% endblock %}

@@ -1,5 +1,5 @@
 """Models for Blogly."""
-
+import datetime
 from flask_sqlalchemy import SQLAlchemy
 
 db = SQLAlchemy()
@@ -43,3 +43,34 @@ class User(db.Model):
         """Alphabetize list based on last_name, then first_name"""
 
         return cls.query.order_by(cls.last_name, cls.first_name).all()
+
+class Post(db.Model):
+    """Post Table"""
+
+    __tablename__ = "posts"
+
+    id = db.Column(db.Integer,
+                    primary_key=True,
+                    autoincrement=True)
+    title = db.Column(db.String,
+                        nullable=False)
+    content = db.Column(db.String,
+                        nullable=False)
+    created_at = db.Column(db.DateTime, 
+                        default=datetime.datetime.utcnow)
+    user_id = db.Column(db.Integer,
+                        db.ForeignKey('users.id'))
+
+    user = db.relationship('User', backref='posts')
+
+    def friendly_date(self):
+        """Return date and time in friendly looking version"""
+
+        now = self.created_at
+        return now.strftime("%c")
+
+    @classmethod
+    def five_recent_posts(cls):
+        """Return the five most recent posts"""
+
+        return cls.query.order_by(cls.created_at.desc()).limit(5).all()

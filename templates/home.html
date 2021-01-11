@@ -1,13 +1,19 @@
 {% extends 'base.html' %}
-{% block title %}Homepage{% endblock %}
+{% block title %}Recent Posts{% endblock %}
 
 {% block content %}
-<div class="container-fluid">
+<div class="container-fluid m-5">
     <h1>Blogly Recent Posts</h1>
         {% for post in recent_posts %}
             <h2>{{post.title}}</h2>
             <h5>{{post.content}}</h5>
             <p>By {{post.user.first_name}} on {{post.friendly_date()}}</p>
+            <div class="row">
+                <p class="font-weight-bold">Tags: </p>
+                {% for tag in post.tags %}
+                <p><span class="p-1 ml-1 bg-primary text-light rounded">{{ tag.name }}</span></p>
+                {% endfor %}
+            </div>
         {% endfor %}
     <form action="/users">
         <button class="btn btn-info">All Users</button>

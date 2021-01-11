@@ -2,7 +2,7 @@
 
 from flask import Flask, request, redirect, render_template
 from flask_debugtoolbar import DebugToolbarExtension
-from models import db, connect_db, User, Post
+from models import db, connect_db, User, Post, Tag, PostTag
 
 app = Flask(__name__)
 
@@ -96,7 +96,8 @@ def create_post(user_id):
     """Redirect to form to create new post"""
 
     user = User.query.get_or_404(user_id)
-    return render_template("new_post.html", user=user)
+    tags = Tag.query.all()
+    return render_template("new_post.html", user=user, tags=tags)
 
 @app.route("/users/<int:user_id>/posts/new", methods=["POST"])
 def commit_post(user_id):
@@ -109,6 +110,14 @@ def commit_post(user_id):
     post = Post(title=title, content=content, user_id=user.id)
     db.session.add(post)
     db.session.commit()
+
+    tags = request.form.getlist('tag')
+
+    for t in tags:
+        tag = Tag.query.filter_by(name = t).first()
+        pt = PostTag(post_id=post.id, tag_id=tag.id)
+        db.session.add(pt)
+        db.session.commit()
 
     return redirect(f"/users/{user.id}")
 
@@ -124,7 +133,9 @@ def edit_post(post_id):
     """Edit a single post"""
 
     post = Post.query.get_or_404(post_id)
-    return render_template("edit_post.html", post=post)
+    tags = Tag.query.all()
+
+    return render_template("edit_post.html", post=post, tags=tags)
 
 @app.route("/posts/<int:post_id>/edit", methods=["POST"])
 def commit_edit_post(post_id):
@@ -140,6 +151,21 @@ def commit_edit_post(post_id):
     db.session.add(post)
     db.session.commit()
 
+    tags = request.form.getlist('tag')
+
+    for t in tags:
+        tag = Tag.query.filter_by(name = t).first()
+
+        if (post not in tag.posts):
+            pt = PostTag(post_id=post.id, tag_id=tag.id)
+            db.session.add(pt)
+            db.session.commit()  
+        elif (post in tag.posts):
+            pt = PostTag.query.filter(PostTag.post_id == post.id, PostTag.tag_id == tag.id)
+            db.session.delete(pt)       
+            db.session.commit()
+            
+
     return redirect(f"/users/{post.user_id}")
 
 @app.route("/posts/<int:post_id>/delete")
@@ -150,3 +176,65 @@ def delete_post(post_id):
     db.session.commit()
 
     return redirect(f"/users")    
+
+@app.route("/tags")
+def list_tags():
+    """List all tags"""
+
+    tags = Tag.query.all()
+    return render_template("list_tags.html", tags=tags)
+
+@app.route("/tags/<int:tag_id>")
+def show_tag(tag_id):
+    """Show info on a single tag."""
+
+    tag = Tag.query.get_or_404(tag_id)
+    return render_template("tag_detail.html", tag=tag)
+
+@app.route("/tags/new")
+def add_tag():
+    """Form to add a new tag"""
+
+    return render_template("new_tag.html")
+
+@app.route("/tags/new", methods=["POST"])
+def commit_tag():
+    """Add tag and redirect to list."""
+
+    name = request.form['name']
+
+    tag = Tag(name=name)
+    db.session.add(tag)
+    db.session.commit()
+
+    return redirect(f"/tags")
+
+@app.route("/tags/<int:tag_id>/edit")
+def edit_tag(tag_id):
+    """Edit form for a single tag."""
+
+    tag = Tag.query.get_or_404(tag_id)
+    return render_template("edit_tag.html", tag=tag)
+
+@app.route("/tags/<int:tag_id>/edit", methods=["POST"])
+def commit_edit_tag(tag_id):
+    """Edit tag and redirect to tag list."""
+
+    name = request.form['name']
+
+    tag = Tag.query.filter_by(id=tag_id).first()
+    tag.name = name
+
+    db.session.add(tag)
+    db.session.commit()
+
+    return redirect("/tags")
+
+@app.route("/tags/<int:tag_id>/delete")
+def delete_tag(tag_id):
+    """Delete a single tag."""
+
+    tag = Tag.query.filter_by(id=tag_id).delete()
+    db.session.commit()
+
+    return redirect("/tags")    

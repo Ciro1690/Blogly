@@ -2,7 +2,7 @@
 {% block title %}New Post{% endblock %}
 
 {% block content %}
-<div class="container-fluid">
+<div class="container-fluid m-5">
     <form method="POST">
         <h2>Add Post for {{ user.get_full_name() }}</h2>
         <div class="form-group">
@@ -13,6 +13,10 @@
             <label for="content">Content
                 <textarea class="form-control" rows="4" cols="40" name="content"></textarea></label>
         </div>
+        {% for tag in tags %}
+            <input type="checkbox" name="tag" value="{{tag.name}}">
+            <label for="tag">{{ tag.name }}</label><br>
+        {% endfor %}
         <div class="btn-group">
             <button class="btn btn-success mr-1">Add</button>
     </form>

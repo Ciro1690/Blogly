@@ -2,11 +2,16 @@
 {% block title %}{{ post.title }}{% endblock %}
 
 {% block content %}
-<div class="container-fluid">
+<div class="container-fluid m-5">
     <h1>{{ post.title }}</h1>
     <h5>{{ post.content }}</h5>
-    <p>{{post.user.first_name}}</p>
-
+    <p>By {{post.user.first_name}}</p>
+    <div class="row">
+        <p class="font-weight-bold">Tags: </p>
+        {% for tag in post.tags %} 
+            <p><span class="p-1 ml-1 bg-primary text-light rounded">{{ tag.name }}</span></p> 
+        {% endfor %}
+    </div>
     <div class="btn-group">
         <form action="/posts/{{post.id}}/edit">
             <button class="btn btn-primary">Edit</button>

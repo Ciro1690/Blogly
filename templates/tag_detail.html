@@ -1,0 +1,22 @@
+{% extends 'base.html' %}
+{% block title %}{{ tag.name }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid m-5">
+    <h1>{{ tag.name }}</h1>
+    <ul>
+        {% for post in tag.posts %}
+        <li><a href="/posts/{{ post.id }}">{{ post.title }}</a></li>
+        {% endfor %}
+    </ul>
+
+        <div class="btn-group">
+            <form action="/tags/{{tag.id}}/edit">
+                <button class="btn btn-primary">Edit</button>
+            </form>
+            <form action="/tags/{{tag.id}}/delete">
+                <button class="btn btn-warning">Delete</button>
+            </form>
+        </div>
+</div>
+{% endblock %}

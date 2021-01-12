@@ -153,18 +153,20 @@ def commit_edit_post(post_id):
 
     tags = request.form.getlist('tag')
 
+    for tag in post.tags:
+        if (tag.name not in tags):
+            delete = PostTag.query.filter(PostTag.post_id == post.id, PostTag.tag_id == tag.id).first()
+
+            db.session.delete(delete)       
+            db.session.commit()  
+
     for t in tags:
         tag = Tag.query.filter_by(name = t).first()
 
         if (post not in tag.posts):
             pt = PostTag(post_id=post.id, tag_id=tag.id)
             db.session.add(pt)
-            db.session.commit()  
-        elif (post in tag.posts):
-            pt = PostTag.query.filter(PostTag.post_id == post.id, PostTag.tag_id == tag.id)
-            db.session.delete(pt)       
-            db.session.commit()
-            
+            db.session.commit()     
 
     return redirect(f"/users/{post.user_id}")
 

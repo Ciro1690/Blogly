@@ -16,55 +16,52 @@ app.config['DEBUG_TB_HOSTS'] = ['dont-show-debug-toolbar']
 db.drop_all()
 db.create_all()
 
-
-class UserViewsTestCase(TestCase):
-    """Tests for views for Users."""
+class TagViewsTestCase(TestCase):
+    """Tests for views for Tags."""
 
     def setUp(self):
-        """Add sample user."""
-
-        User.query.delete()
+        """Add sample tag."""
 
         user = User(first_name="Test", last_name="User")
         db.session.add(user)
         db.session.commit()
 
-        self.user_id = user.id
+        post = Post(title="First", content="Post", user_id=1)
+        db.session.add(post)
+        db.session.commit()
+
+        tag = Tag(name="Tag1")
+        db.session.add(tag)
+        db.session.commit()        
+
+        self.tag_id = tag.id
 
     def tearDown(self):
         """Clean up any fouled transaction."""
 
         db.session.rollback()
 
-    def test_list_users(self):
+
+    def test_show_tag(self):
         with app.test_client() as client:
-            resp = client.get("/users")
+            resp = client.get(f"/tags/{self.tag_id}")
             html = resp.get_data(as_text=True)
 
             self.assertEqual(resp.status_code, 200)
-            self.assertIn('Test', html)
+            self.assertIn('Tag1', html)
 
-    def test_show_user(self):
+    def test_add_tag(self):
         with app.test_client() as client:
-            resp = client.get(f"/users/{self.user_id}")
+            d = {"name": "Tag2"}
+            resp = client.post(f"/tags/new", data=d, follow_redirects=True)
             html = resp.get_data(as_text=True)
 
             self.assertEqual(resp.status_code, 200)
-            self.assertIn('<h1>Test User</h1>', html)
+            self.assertIn("Tag2", html)
 
-    def test_add_user(self):
+    def test_delete_tag(self):
         with app.test_client() as client:
-            d = {"first": "Second", "last": "User", "url": 'www.google.com'}
-            resp = client.post("/users/new", data=d, follow_redirects=True)
-            html = resp.get_data(as_text=True)
+            resp = client.get("tags/1/delete", follow_redirects=True)
+            tag = client.get("tags/1")
 
-            self.assertEqual(resp.status_code, 200)
-            self.assertIn("<h1>Second User</h1>", html)
-
-    def test_delete_user(self):
-        with app.test_client() as client:
-            resp = client.get("users/3/delete", follow_redirects=True)
-            html = resp.get_data(as_text=True)
-
-            self.assertEqual(resp.status_code, 200)
-            self.assertNotIn('Test', html)
+            self.assertEqual(tag.status_code, 404)

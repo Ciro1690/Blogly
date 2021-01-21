@@ -3,6 +3,7 @@
 from flask import Flask, request, redirect, render_template
 from flask_debugtoolbar import DebugToolbarExtension
 from models import db, connect_db, User, Post, Tag, PostTag
+import os
 
 app = Flask(__name__)
 
@@ -12,7 +13,7 @@ app.config['SQLALCHEMY_ECHO'] = True
 
 connect_db(app)
 
-app.config['SECRET_KEY'] = "SECRET!"
+app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', "SECRET!")
 debug = DebugToolbarExtension(app)
 app.config['DEBUG_TB_INTERCEPT_REDIRECTS'] = False
 

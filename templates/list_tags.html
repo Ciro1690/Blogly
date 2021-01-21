@@ -9,11 +9,13 @@
         <li><a href="/tags/{{ tag.id }}">{{ tag.name }}</a></li>
         {% endfor %}
     </ul>
-    <form action="/tags/new">
-        <button class="btn btn-info mr-1">Add Tag</button>
-    </form>
-    <form action="/users">
-        <button class="btn btn-danger">Cancel</button>
-    </form>
+    <div class="btn-group">
+        <form action="/tags/new">
+            <button class="btn btn-info mr-1">Add Tag</button>
+        </form>
+        <form action="/users">
+            <button class="btn btn-danger">Cancel</button>
+        </form>
+    </div>
 </div>
 {% endblock %}

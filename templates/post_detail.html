@@ -9,7 +9,7 @@
     <div class="row">
         <p class="font-weight-bold">Tags: </p>
         {% for tag in post.tags %} 
-            <p><span class="p-1 ml-1 bg-primary text-light rounded">{{ tag.name }}</span></p> 
+            <p><a href="/tags/{{tag.id}}" class="p-1 ml-1 bg-primary text-light rounded">{{ tag.name }}</a></p> 
         {% endfor %}
     </div>
     <div class="btn-group">

@@ -3,7 +3,7 @@
 from flask import Flask, request, redirect, render_template, session, flash
 from flask_debugtoolbar import DebugToolbarExtension
 from models import db, connect_db, User, Post, Tag, PostTag
-from forms import RegisterForm, LoginForm, PostForm
+from forms import RegisterForm, LoginForm, PostForm, UserForm
 from sqlalchemy.exc import IntegrityError
 import os
 
@@ -99,36 +99,41 @@ def list_users():
     users = User.alphabetize_list()
     return render_template("list_users.html",users=users)
 
-@app.route("/users/<username>/edit", methods=["POST"])
+@app.route("/users/<username>/edit", methods=['GET', 'POST'])
 def commit_edit_user(username):
     """Add user and redirect to list."""
-
-    first = request.form['first']
-    last = request.form['last']
-    email = request.form['email']
-
-    user = User.query.filter_by(username=username).first()
-    user.first_name = first
-    user.last_name = last
-    user.email = email
-
-    db.session.add(user)
-    db.session.commit()
-
-    return redirect(f"/users")
-
-@app.route("/users/<username>/edit")
-def edit_user(username):
-    """Edit form on a single user."""
-
+    if 'username' not in session:
+        flash("Please login first", "danger")
+        return redirect('/')
     user = User.query.get_or_404(username)
-    return render_template("edit_user.html", user=user)
+    form = UserForm(obj=user)
+
+    if (session['username'] != username):
+        flash("You can only update your own profile", "danger")
+        return redirect('/')        
+    
+    if form.validate_on_submit():
+        first = form.first_name.data
+        last = form.last_name.data
+        email = form.email.data
+
+        user = User.query.filter_by(username=username).first()
+        user.first_name = first
+        user.last_name = last
+        user.email = email
+
+        db.session.add(user)
+        db.session.commit()  
+
+        flash('User updated', "success") 
+        return redirect(f"/users/{user.username}")       
+    return render_template("edit_user.html", form=form, user=user)
 
 @app.route("/users/<username>/posts/new", methods=['GET', 'POST'])
 def create_post(username):
     """Create new post"""
-    if 'username' not in session:
-        flash("Please login first", "danger")
+    if session['username'] != username:
+        flash("Invalid credentials", "danger")
         return redirect('/')
     form = PostForm()
     if form.validate_on_submit():
@@ -161,57 +166,50 @@ def show_post(post_id):
     post = Post.query.get_or_404(post_id)
     return render_template("post_detail.html", post=post)
 
-@app.route("/posts/<int:post_id>/edit")
+@app.route("/posts/<int:post_id>/edit", methods=['GET', 'POST'])
 def edit_post(post_id):
     """Edit a single post"""
-
+    if 'username' not in session:
+        flash("Please login first", "danger")
+        return redirect('/')
     post = Post.query.get_or_404(post_id)
+    if not post:
+        flash("Review doesn't exist", "danger")
+        return redirect("/")
+    form = PostForm(obj=post)
     tags = Tag.query.all()
+    if (session['username'] != post.username):
+        flash("You can only change your own reviews", "danger")
+        return redirect('/')        
+    
+    if form.validate_on_submit():
+        post.title = form.title.data
+        post.content = form.content.data
+        post.rating = form.rating.data
+        db.session.add(post)
+        db.session.commit()
 
-    return render_template("edit_post.html", post=post, tags=tags)
+        tags = request.form.getlist('tag')
 
-@app.route("/posts/<int:post_id>/edit", methods=["POST"])
-def commit_edit_post(post_id):
-    """Edit post and redirect to user detail."""
+        for tag in post.tags:
+            if (tag.name not in tags):
+                delete = PostTag.query.filter(PostTag.post_id == post.id, PostTag.tag_id == tag.id).first()
 
-    title = request.form['title']
-    content = request.form['content']
+                db.session.delete(delete)       
+                db.session.commit()  
 
-    post = Post.query.filter_by(id=post_id).first()
-    post.title = title
-    post.content = content
+        for t in tags:
+            tag = Tag.query.filter_by(name = t).first()
 
-    db.session.add(post)
-    db.session.commit()
+            if (post not in tag.posts):
+                pt = PostTag(post_id=post.id, tag_id=tag.id)
+                db.session.add(pt)
+                db.session.commit()     
 
-    tags = request.form.getlist('tag')
-
-    for tag in post.tags:
-        if (tag.name not in tags):
-            delete = PostTag.query.filter(PostTag.post_id == post.id, PostTag.tag_id == tag.id).first()
-
-            db.session.delete(delete)       
-            db.session.commit()  
-
-    for t in tags:
-        tag = Tag.query.filter_by(name = t).first()
-
-        if (post not in tag.posts):
-            pt = PostTag(post_id=post.id, tag_id=tag.id)
-            db.session.add(pt)
-            db.session.commit()     
-
-    return redirect(f"/users/{post.username}")
-
-@app.route("/posts/<int:post_id>/delete")
-def delete_post(post_id):
-    """Delete a single post."""
-
-    post = Post.query.filter_by(id=post_id).delete()
-    db.session.commit()
-
-    return redirect(f"/users")    
-
+        flash('Review updated', "success") 
+        return redirect(f"/users/{post.user.username}")       
+    return render_template("edit_post.html", form=form, post=post, tags=tags)
+    
 @app.route("/tags/<int:tag_id>")
 def show_tag(tag_id):
     """Show info on a single tag."""

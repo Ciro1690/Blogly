@@ -2,25 +2,25 @@
 {% block title %}Edit Post{% endblock %}
 
 {% block content %}
-<div class="container-fluid m-5">
+<div class="container-fluid text-center">
     <form method="POST">
-        <h2>Edit a post</h2>
-        <div class="form-group">
-            <label for="title">Title
-                <input class="form-control" type="text" name="title" value="{{post.title}}">
-            </label>
-        </div>
-        <div class="form-group">
-            <label for="content">Post Content
-                <textarea class="form-control" rows="4" cols="40" name="content">{{post.content}}</textarea>
-            </label>
-        </div>
+        <h2>Edit a review</h2>
+        {{ form.hidden_tag() }}
+
+        {% for field in form
+        if field.widget.input_type != 'hidden' %}
+        <p>
+            {{ field.label }}
+            {{ field(class_="form-control") }}
+        </p>
+        {% endfor %}
+
         {% for tag in tags %}
             <input type="checkbox" name="tag" value="{{tag.name}}" {% if post in tag.posts %} checked {% endif %}>
             <label for="tag">{{ tag.name }}</label><br>
         {% endfor %}
     <div class="btn-group">
-        <button class="btn btn-success mr-1">Edit</button>
+        <button class="btn btn-success mr-1" type="submit">Edit</button>
     </form>
         <form action="/users/{{post.username}}">
             <button class="btn btn-danger">Cancel</button>

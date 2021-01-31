@@ -7,7 +7,11 @@
     {% for post in recent_posts %}
         <h1>{{ post.title }}</h1>
         <h5>{{ post.content }}</h5>
+        {% if post.user %}
         <h5>{{post.user.first_name}}'s Rating: </h5>
+        {% else %}
+        <h5>Rating: </h5>
+        {% endif %}
         {%for i in range(0, post.rating)%}
             <i class="fas fa-star fa-2x text-warning"></i>
         {%endfor%}

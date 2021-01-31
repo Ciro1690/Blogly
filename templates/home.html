@@ -1,23 +1,12 @@
 {% extends 'base.html' %}
-{% block title %}Recent Posts{% endblock %}
+{% block title %}Critic{% endblock %}
 
 {% block content %}
-<div class="container-fluid m-5 text-center">
-    <h1>Welcome to the Blog App!</h1><br>
-    <h3>Recent Blog Posts</h3>
-        {% for post in recent_posts %}
-            <h2>{{post.title}}</h2>
-            <h5>{{post.content}}</h5>
-            <p>By {{post.user.first_name}} on {{post.friendly_date()}}</p>
-            <div class="row">
-                <p class="font-weight-bold">Tags: </p>
-                {% for tag in post.tags %}
-                <p><span class="p-1 ml-1 bg-primary text-light rounded">{{ tag.name }}</span></p>
-                {% endfor %}
-            </div>
-        {% endfor %}
-    <form action="/users">
-        <button class="btn btn-info">All Users</button>
-    </form>
+<div class="container-fluid">
+    <div class="text-center">
+            <h4>During lockdown, we all have some extra time on our hands.</h4><br>
+            <h4>Leave a review for a TV show, movie, book or album</h4>
+            <h4>and help your friends & family use their time wisely!</h4>
+    </div>
 </div>
 {% endblock %}

@@ -2,20 +2,15 @@
 {% block title %}All Users{% endblock %}
 
 {% block content %}
-<div class="container-fluid m-5">
+<div class="container-fluid text-center">
     <h1>All Users</h1>
-    <ul>
         {% for user in users %}
-        <li><a href="/users/{{ user.id }}">{{ user.get_full_name() }}</a></li>
+        <a href="/users/{{ user.username }}">{{ user.get_full_name() }}</a><br>
         {% endfor %}
-    </ul>
 
     <div class="btn-group">
-        <form action="/users/new">
-            <button class="btn btn-info mr-1">Add User</button>
-        </form>
         <form action="/">
-            <button class="btn btn-primary">Recent Posts</button>
+            <button class="btn btn-primary mt-5">Recent Reviews</button>
         </form>
     </div>
 </div>

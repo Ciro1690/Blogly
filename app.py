@@ -1,8 +1,10 @@
 """Blogly application."""
 
-from flask import Flask, request, redirect, render_template
+from flask import Flask, request, redirect, render_template, session, flash
 from flask_debugtoolbar import DebugToolbarExtension
 from models import db, connect_db, User, Post, Tag, PostTag
+from forms import RegisterForm, LoginForm, PostForm
+from sqlalchemy.exc import IntegrityError
 import os
 
 app = Flask(__name__)
@@ -19,11 +21,76 @@ debug = DebugToolbarExtension(app)
 app.config['DEBUG_TB_INTERCEPT_REDIRECTS'] = False
 
 @app.route("/")
-def homepage():
-    """Direct to homepage"""
+def home():
+    """Direct to Home Page"""
 
+    return render_template("home.html")
+
+@app.route("/register", methods=['GET', 'POST'])
+def register_user():
+    form = RegisterForm()
+    if form.validate_on_submit():
+        username = form.username.data
+        password = form.password.data
+        email = form.email.data
+        first_name = form.first_name.data
+        last_name = form.last_name.data
+        new_user = User.register(username, password, email, first_name, last_name)
+
+        db.session.add(new_user)
+        try:
+            db.session.commit()
+        except IntegrityError:
+            form.username.errors.append("Username already taken")
+            return render_template("register.html", form=form)
+
+        session['username'] = new_user.username
+        flash("Created new account", "success")
+        return redirect('/')
+
+    return render_template("register.html", form=form)
+
+@app.route("/login", methods=['GET', 'POST'])
+def login_user():
+    form = LoginForm()
+    if form.validate_on_submit():
+        username = form.username.data
+        password = form.password.data
+
+        user = User.authenticate(username, password)
+
+        if user:
+            flash(f"Welcome {user.first_name}", "success")
+            session['username'] = user.username
+            return redirect(f'/users/{user.username}')
+        else:
+            form.username.errors = ['Invalid username/password']
+    return render_template('login.html', form=form)
+    
+@app.route("/recent")
+def recent():
+    """Direct to Recent Posts"""
     recent_posts = Post.five_recent_posts()
-    return render_template("home.html", recent_posts=recent_posts)
+    return render_template("recent.html", recent_posts=recent_posts)
+
+@app.route("/users/<username>")
+def user_info(username):
+    user = User.query.get_or_404(username)
+    return render_template("user_info.html", user=user)
+
+@app.route("/users/<username>/delete", methods=['POST'])
+def delete_user(username):
+    if 'username' not in session:
+        flash("Please log in to view this page", "danger")
+        return redirect('/login')
+    if session['username'] == username:
+        user = User.query.get_or_404(username)
+        db.session.delete(user)
+        db.session.commit()
+        flash("User deleted", "success")
+        return redirect("/logout")
+    flash("You don't have permission", "danger")
+    return redirect("/")
 
 @app.route("/users")
 def list_users():
@@ -32,96 +99,60 @@ def list_users():
     users = User.alphabetize_list()
     return render_template("list_users.html",users=users)
 
-@app.route("/users/new")
-def add_user():
-    """Form to add new user."""
-    return render_template("new_user.html")
-
-@app.route("/users/new", methods=["POST"])
-def commit_user():
+@app.route("/users/<username>/edit", methods=["POST"])
+def commit_edit_user(username):
     """Add user and redirect to list."""
 
     first = request.form['first']
     last = request.form['last']
-    url = request.form['url']
-    url = url if url else None
+    email = request.form['email']
 
-    user = User(first_name=first, last_name=last, image_url=url)
-    db.session.add(user)
-    db.session.commit()
-
-    return redirect(f"/users/{user.id}")
-
-@app.route("/users/<int:user_id>/edit", methods=["POST"])
-def commit_edit_user(user_id):
-    """Add user and redirect to list."""
-
-    first = request.form['first']
-    last = request.form['last']
-    url = request.form['url']
-    url = url if url else None
-
-    user = User.query.filter_by(id=user_id).first()
+    user = User.query.filter_by(username=username).first()
     user.first_name = first
     user.last_name = last
-    user.image_url = url
+    user.email = email
+
     db.session.add(user)
     db.session.commit()
 
     return redirect(f"/users")
 
-@app.route("/users/<int:user_id>")
-def show_user(user_id):
-    """Show info on a single user."""
-
-    user = User.query.get_or_404(user_id)
-    return render_template("user_detail.html", user=user)
-
-@app.route("/users/<int:user_id>/edit")
-def edit_user(user_id):
+@app.route("/users/<username>/edit")
+def edit_user(username):
     """Edit form on a single user."""
 
-    user = User.query.get_or_404(user_id)
+    user = User.query.get_or_404(username)
     return render_template("edit_user.html", user=user)
 
-@app.route("/users/<int:user_id>/delete")
-def delete_user(user_id):
-    """Delete a single user."""
+@app.route("/users/<username>/posts/new", methods=['GET', 'POST'])
+def create_post(username):
+    """Create new post"""
+    if 'username' not in session:
+        flash("Please login first", "danger")
+        return redirect('/')
+    form = PostForm()
+    if form.validate_on_submit():
+        title = form.title.data
+        content = form.content.data
+        rating = form.rating.data
 
-    user = User.query.filter_by(id=user_id).delete()
-    db.session.commit()
-
-    return redirect(f"/users")
-
-@app.route("/users/<int:user_id>/posts/new")
-def create_post(user_id):
-    """Redirect to form to create new post"""
-
-    user = User.query.get_or_404(user_id)
-    tags = Tag.query.all()
-    return render_template("new_post.html", user=user, tags=tags)
-
-@app.route("/users/<int:user_id>/posts/new", methods=["POST"])
-def commit_post(user_id):
-    """Add post to database"""
-
-    title = request.form['title']
-    content = request.form['content']
-    user = User.query.get_or_404(user_id)
-
-    post = Post(title=title, content=content, user_id=user.id)
-    db.session.add(post)
-    db.session.commit()
-
-    tags = request.form.getlist('tag')
-
-    for t in tags:
-        tag = Tag.query.filter_by(name = t).first()
-        pt = PostTag(post_id=post.id, tag_id=tag.id)
-        db.session.add(pt)
+        user = User.query.get_or_404(username)
+        post = Post(title=title, content=content, rating=rating, username=username)
+        db.session.add(post)
         db.session.commit()
 
-    return redirect(f"/users/{user.id}")
+        tags = request.form.getlist('tag')
+
+        for t in tags:
+            tag = Tag.query.filter_by(name = t).first()
+            pt = PostTag(post_id=post.id, tag_id=tag.id)
+            db.session.add(pt)
+            db.session.commit()
+
+        flash('Post added', "success")
+        return redirect(f"/users/{username}")
+    tags = Tag.query.all()
+    return render_template("new_post.html", tags=tags, form=form)
 
 @app.route("/posts/<int:post_id>")
 def show_post(post_id):
@@ -170,7 +201,7 @@ def commit_edit_post(post_id):
             db.session.add(pt)
             db.session.commit()     
 
-    return redirect(f"/users/{post.user_id}")
+    return redirect(f"/users/{post.username}")
 
 @app.route("/posts/<int:post_id>/delete")
 def delete_post(post_id):
@@ -181,13 +212,6 @@ def delete_post(post_id):
 
     return redirect(f"/users")    
 
-@app.route("/tags")
-def list_tags():
-    """List all tags"""
-
-    tags = Tag.query.all()
-    return render_template("list_tags.html", tags=tags)
-
 @app.route("/tags/<int:tag_id>")
 def show_tag(tag_id):
     """Show info on a single tag."""
@@ -195,50 +219,8 @@ def show_tag(tag_id):
     tag = Tag.query.get_or_404(tag_id)
     return render_template("tag_detail.html", tag=tag)
 
-@app.route("/tags/new")
-def add_tag():
-    """Form to add a new tag"""
-
-    return render_template("new_tag.html")
-
-@app.route("/tags/new", methods=["POST"])
-def commit_tag():
-    """Add tag and redirect to list."""
-
-    name = request.form['name']
-
-    tag = Tag(name=name)
-    db.session.add(tag)
-    db.session.commit()
-
-    return redirect(f"/tags")
-
-@app.route("/tags/<int:tag_id>/edit")
-def edit_tag(tag_id):
-    """Edit form for a single tag."""
-
-    tag = Tag.query.get_or_404(tag_id)
-    return render_template("edit_tag.html", tag=tag)
-
-@app.route("/tags/<int:tag_id>/edit", methods=["POST"])
-def commit_edit_tag(tag_id):
-    """Edit tag and redirect to tag list."""
-
-    name = request.form['name']
-
-    tag = Tag.query.filter_by(id=tag_id).first()
-    tag.name = name
-
-    db.session.add(tag)
-    db.session.commit()
-
-    return redirect("/tags")
-
-@app.route("/tags/<int:tag_id>/delete")
-def delete_tag(tag_id):
-    """Delete a single tag."""
-
-    tag = Tag.query.filter_by(id=tag_id).delete()
-    db.session.commit()
-
-    return redirect("/tags")    
+@app.route("/logout")
+def logout():
+    session.pop('username')
+    flash('You are now logged out', "success")
+    return redirect('/')

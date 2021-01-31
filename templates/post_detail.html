@@ -2,21 +2,22 @@
 {% block title %}{{ post.title }}{% endblock %}
 
 {% block content %}
-<div class="container-fluid m-5">
+<div class="container-fluid text-center">
     <h1>{{ post.title }}</h1>
     <h5>{{ post.content }}</h5>
-    <p>By {{post.user.first_name}}</p>
-    <div class="row">
-        <p class="font-weight-bold">Tags: </p>
-        {% for tag in post.tags %} 
-            <p><a href="/tags/{{tag.id}}" class="p-1 ml-1 bg-primary text-light rounded">{{ tag.name }}</a></p> 
-        {% endfor %}
-    </div>
-    <div class="btn-group">
+    <h5>{{post.user.first_name}}'s Rating: </h5>
+    {%for i in range(0, post.rating)%}
+    <i class="fas fa-star fa-2x text-warning"></i>
+    {%endfor%}
+    <p class="font-weight-bold">Tags: </p>
+    {% for tag in post.tags %} 
+        <a href="/tags/{{tag.id}}" class="p-1 ml-1 bg-primary text-light rounded">{{ tag.name }}</a>
+    {% endfor %}<br>
+    <div class="btn-group mt-3">
         <form action="/posts/{{post.id}}/edit">
             <button class="btn btn-primary">Edit</button>
         </form>
-        <form action="/users/{{post.user_id}}">
+        <form action="/users/{{post.username}}">
             <button class="btn btn-danger mx-1">Cancel</button>
         </form>
         <form action="/posts/{{post.id}}/delete">

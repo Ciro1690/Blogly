@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+{% block title %}{{ user.get_full_name() }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid text-center">
+    <h1>{{ user.get_full_name() }}</h1>
+    <div class="btn-group">
+        <form action="/users/{{user.username}}/edit">
+            <button class="btn btn-info mr-1">Edit User Details</button>
+        </form>
+        <form action="/users/{{user.username}}/delete" method="POST">
+            <button class="btn btn-danger">Delete User</button>
+        </form>
+    </div> <hr>
+    <h2 class="m-3">Reviews by {{ user.first_name }}</h2>
+        {% for post in user.posts %}
+        <a href="/posts/{{ post.id }}">{{ post.title }}</a><br>
+        {% endfor %}
+    <div class="btn-group mt-3">
+        <form action="/users/{{user.username}}/posts/new">
+            <button class="btn btn-outline-info mr-1">Add a Review</button>
+        </form>
+    </div>
+</div>
+{% endblock %}

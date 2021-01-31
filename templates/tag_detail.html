@@ -2,24 +2,10 @@
 {% block title %}{{ tag.name }}{% endblock %}
 
 {% block content %}
-<div class="container-fluid m-5">
+<div class="container-fluid text-center">
     <h1>{{ tag.name }}</h1>
-    <ul>
         {% for post in tag.posts %}
-        <li><a href="/posts/{{ post.id }}">{{ post.title }}</a></li>
+            <a href="/posts/{{ post.id }}">{{ post.title }}</a><br>
         {% endfor %}
-    </ul>
-
-        <div class="btn-group">
-            <form action="/tags/{{tag.id}}/edit">
-                <button class="btn btn-primary mr-1">Edit</button>
-            </form>
-            <form action="/tags/{{tag.id}}/delete">
-                <button class="btn btn-warning mr-1">Delete</button>
-            </form>
-            <form action="/tags">
-                <button class="btn btn-danger">Cancel</button>
-            </form>
-        </div>
 </div>
 {% endblock %}

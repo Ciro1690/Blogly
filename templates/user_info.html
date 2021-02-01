@@ -3,7 +3,7 @@
 
 {% block content %}
 <div class="container-fluid text-center">
-    <h1>{{ user.get_full_name() }}</h1>
+    <h1 class="display-4">{{ user.get_full_name() }}</h1>
     {% if session['username'] == user.username %}
     <div class="btn-group">
         <form action="/users/{{user.username}}/edit">

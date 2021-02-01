@@ -1,26 +1,26 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<h1 class="text-center">Add Review</h1>
+<div class="text-center">
+    <h1 class="display-4">Add Review</h1>
+    <form method="POST">
+        {{ form.hidden_tag() }}
 
-<form method="POST">
-    {{ form.hidden_tag() }}
-
-    {% for field in form
-    if field.widget.input_type != 'hidden' %}
-    <p>
-        {{ field.label }}
-        {{ field(class_="form-control") }}
-    </p>
-    {% endfor %}
-    <div class="text-center">
-        <h3>Type of Review</h3>
-        {% for tag in tags %}
-        <input type="checkbox" name="tag" value="{{tag.name}}">
-        <label for="tag">{{ tag.name }}</label>
-        {% endfor %}<br>
-        <button class="btn btn-success" type="submit">Add</button>
-    </div>
-</form>
-
+        {% for field in form
+        if field.widget.input_type != 'hidden' %}
+        <p>
+            {{ field.label }}
+            {{ field(class_="form-control") }}
+        </p>
+        {% endfor %}
+        <div class="text-center">
+            <h3>Type of Review</h3>
+            {% for tag in tags %}
+            <input type="checkbox" name="tag" value="{{tag.name}}">
+            <label for="tag">{{ tag.name }}</label>
+            {% endfor %}<br>
+            <button class="btn btn-success" type="submit">Add</button>
+        </div>
+    </form>
+</div>
 {% endblock %}

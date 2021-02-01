@@ -9,7 +9,7 @@
     <link rel="stylesheet" href="https://unpkg.com/bootstrap/dist/css/bootstrap.css">    
     <link rel="preconnect" href="https://fonts.gstatic.com">
     <link href="https://fonts.googleapis.com/css2?family=Oswald&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="../static/app.css">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static',filename='app.css') }}">
     <script src="https://kit.fontawesome.com/7bf8b700c0.js" crossorigin="anonymous"></script>
 <title>{% block title %}{% endblock %}</title>
 </head>
@@ -33,23 +33,41 @@
         </div>
     </nav>
     <div class='jumbotron mt-5'>
-    <div class="container" style="margin-top: 2em">
-        {% for category, msg in get_flashed_messages(with_categories=True) %}
-        <div class="alert alert-{{category}}">{{ msg }}</div>
-        {% endfor %}
+        <div class="container" style="margin-top: 2em">
+            {% for category, msg in get_flashed_messages(with_categories=True) %}
+            <div class="alert alert-{{category}}">{{ msg }}</div>
+            {% endfor %}
+        </div>
         <div class="text-center">
-            <i class="fas fa-star fa-2x text-warning m-2"></i>
-            <i class="fas fa-star fa-2x text-warning m-2"></i>
-            <i class="fas fa-star fa-2x text-warning m-2"></i>
-            <i class="fas fa-star fa-2x text-warning m-2"></i>
-            <i class="fas fa-star fa-2x text-warning m-2"></i>
-            <h1>Everyone's a Critic</h1>
-           <h5>Click on an icon below to see reviews for that genre</h5>
-            <a href="/tags/1"><i class="fas fa-ticket-alt fa-lg m-2"></i></a>
-            <a href="/tags/2"><i class="fas fa-book-open fa-lg m-2"></i></a>
-            <a href="/tags/3"><i class="fas fa-tv fa-lg m-2"></i></a>
-            <a href="/tags/4"><i class="fas fa-music fa-lg m-2"></i></a>
-            <a href="/tags/5"><i class="fa fa-gamepad fa-lg m-2" aria-hidden="true"></i></a>
+            <i class="fas fa-star fa-3x text-warning m-2"></i>
+            <i class="fas fa-star fa-3x text-warning m-2"></i>
+            <i class="fas fa-star fa-3x text-warning m-2"></i>
+            <i class="fas fa-star fa-3x text-warning m-2"></i>
+            <i class="fas fa-star fa-3x text-warning m-2"></i>
+            <h1 class="display-2">Everyone's a Critic</h1>
+           <h3>Click on an icon below to see reviews for that genre</h3>
+            <div id="center">   
+                <figure class="item">
+                    <a href="/tags/1"><i id="genre" class="fas fa-ticket-alt fa-3x m-3"></i></a>            
+                    <figcaption class="caption">Movies</figcaption>
+                </figure>
+                <figure class="item">
+                    <a href="/tags/2"><i id="genre" class="fas fa-book-open fa-3x m-3"></i></a>
+                    <figcaption class="caption">Books</figcaption>
+                </figure>
+                <figure class="item">
+                     <a href="/tags/3"><i id="genre" class="fas fa-tv fa-3x m-3"></i></a>
+                    <figcaption class="caption">TV Shows</figcaption>
+                </figure>
+                <figure class="item">
+                    <a href="/tags/4"><i id="genre" class="fas fa-music fa-3x m-3"></i></a>
+                    <figcaption class="caption">Music</figcaption>
+                </figure>
+                <figure class="item">
+                    <a href="/tags/5"><i id="genre" class="fa fa-gamepad fa-3x m-3" aria-hidden="true"></i></a>
+                    <figcaption class="caption">Video Games</figcaption>
+                </figure>
+            </div>
             <hr>
         </div>
     {% block content %}
@@ -58,6 +76,5 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.6/umd/popper.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
-    <script src="/static/app.js"></script>
 </body>
 </html>

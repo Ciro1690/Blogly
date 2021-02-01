@@ -3,7 +3,7 @@
 
 {% block content %}
 <div class="container-fluid text-center">
-    <h1>Recent Reviews</h1>
+    <h1 class="display-4">Recent Reviews</h1>
     {% for post in recent_posts %}
         <h1>{{ post.title }}</h1>
         <h5>{{ post.content }}</h5>

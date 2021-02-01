@@ -3,7 +3,7 @@
 
 {% block content %}
 <div class="container-fluid text-center">
-    <h1>All Users</h1>
+    <h1 class="display-4">All Users</h1>
         {% for user in users %}
         <a href="/users/{{ user.username }}">{{ user.get_full_name() }}</a><br>
         {% endfor %}

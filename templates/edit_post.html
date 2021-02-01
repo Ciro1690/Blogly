@@ -4,7 +4,7 @@
 {% block content %}
 <div class="container-fluid text-center">
     <form method="POST">
-        <h2>Edit a review</h2>
+        <h2 class="display-4">Edit a review</h2>
         {{ form.hidden_tag() }}
 
         {% for field in form
@@ -25,6 +25,5 @@
         <form action="/users/{{post.username}}">
             <button class="btn btn-danger">Cancel</button>
         </form>
-    </div>
 </div>
 {% endblock %}

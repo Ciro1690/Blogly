@@ -13,8 +13,8 @@
     <script src="https://kit.fontawesome.com/7bf8b700c0.js" crossorigin="anonymous"></script>
 <title>{% block title %}{% endblock %}</title>
 </head>
-<body class="container bg-secondary">
-    <nav class="navbar fixed-top navbar-expand-lg navbar-dark bg-dark">
+<body class="container">
+    <nav class="navbar fixed-top navbar-expand-lg navbar-dark bg-success">
         <a href="/" class="navbar-brand">Home</a>
         <button class="navbar-toggler" data-toggle="collapse" data-target="#navigation"><span
                 class="navbar-toggler-icon"></span></button>
@@ -32,7 +32,7 @@
             </div>
         </div>
     </nav>
-    <div class='jumbotron mt-5'>
+    <div class='jumbotron'>
         <div class="container" style="margin-top: 2em">
             {% for category, msg in get_flashed_messages(with_categories=True) %}
             <div class="alert alert-{{category}}">{{ msg }}</div>

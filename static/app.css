@@ -18,3 +18,15 @@ body {
 .item {
     display: inline-block;
 }
+
+.navbar-brand {
+    margin-left: 3rem;
+}
+
+.navbar-nav {
+    margin-right: 3rem;
+}
+
+.jumbotron {
+    margin-top: 10rem;
+}

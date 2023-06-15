@@ -10,7 +10,7 @@ import os
 app = Flask(__name__)
 
 app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get(
-    'DATABASE_URL', 'postgres:///blogly')
+    'DATABASE_URL', 'postgres://vlpbjjer:kTGa7Pew6zSWQco2gAJ67p1s0Kx_LeuL@mahmud.db.elephantsql.com/vlpbjjer')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SQLALCHEMY_ECHO'] = True
 

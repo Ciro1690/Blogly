@@ -1,8 +1,8 @@
 from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, TextAreaField, IntegerField
 from wtforms.validators import InputRequired
-from wtforms.fields import html5 as h5fields
-from wtforms.widgets import html5 as h5widgets
+from wtforms.fields import IntegerField, StringField, EmailField, URLField, DateField
+from wtforms.widgets import NumberInput
 
 class RegisterForm(FlaskForm):
     username = StringField("Username", validators=[InputRequired()])
@@ -23,4 +23,4 @@ class UserForm(FlaskForm):
 class PostForm(FlaskForm):
     title = StringField("Title", validators=[InputRequired()])
     content = TextAreaField("Review", validators=[InputRequired()])
-    rating = h5fields.IntegerField("Rating", widget=h5widgets.NumberInput(min=0, max=5), validators=[InputRequired()])
+    rating = IntegerField("Rating", widget=NumberInput(min=0, max=5), validators=[InputRequired()])

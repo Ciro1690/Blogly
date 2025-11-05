@@ -9,9 +9,12 @@ import os
 
 app = Flask(__name__)
 
-uri = os.environ.get('DATABASE_URL', 'postgres://vlpbjjer:kTGa7Pew6zSWQco2gAJ67p1s0Kx_LeuL@mahmud.db.elephantsql.com/vlpbjjer')
+uri = os.environ.get('DATABASE_URL')
+if not uri:
+    raise ValueError("DATABASE_URL is not set. Set the environment variable.")
 if uri.startswith("postgres://"):
     uri = uri.replace("postgres://", "postgresql://", 1)
+
 app.config['SQLALCHEMY_DATABASE_URI'] = uri
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SQLALCHEMY_ECHO'] = True
@@ -133,32 +136,43 @@ def commit_edit_user(username):
 
 @app.route("/users/<username>/posts/new", methods=['GET', 'POST'])
 def create_post(username):
-    """Create new post"""
-    if session['username'] != username:
+    """Create a new post and associate tags."""
+    if session.get('username') != username:
         flash("Invalid credentials", "danger")
         return redirect('/')
+
     form = PostForm()
+    tags = Tag.query.all()  # Get all existing tags for the form
+
     if form.validate_on_submit():
-        title = form.title.data
-        content = form.content.data
-        rating = form.rating.data
-
-        user = User.query.get_or_404(username)
-        post = Post(title=title, content=content, rating=rating, username=username)
+        # Create the post
+        post = Post(
+            title=form.title.data,
+            content=form.content.data,
+            rating=form.rating.data,
+            username=username
+        )
         db.session.add(post)
-        db.session.commit()
+        db.session.commit()  # commit to generate post.id
 
-        tags = request.form.getlist('tag')
-
-        for t in tags:
-            tag = Tag.query.filter_by(name = t).first()
+        # Process tags from form
+        selected_tags = request.form.getlist('tag')  # list of tag names
+        for t_name in selected_tags:
+            tag = Tag.query.filter_by(name=t_name).first()
+            if not tag:
+                # create new tag if it doesn't exist
+                tag = Tag(name=t_name)
+                db.session.add(tag)
+                db.session.commit()  # commit to generate tag.id
+            # associate post with tag
             pt = PostTag(post_id=post.id, tag_id=tag.id)
             db.session.add(pt)
-            db.session.commit()
+
+        db.session.commit()  # commit all PostTag associations at once
 
         flash('Post added', "success")
         return redirect(f"/users/{username}")
-    tags = Tag.query.all()
+
     return render_template("new_post.html", tags=tags, form=form)
 
 @app.route("/posts/<int:post_id>")

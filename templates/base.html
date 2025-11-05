@@ -67,6 +67,17 @@
                     <a href="/tags/5"><i id="genre" class="fa fa-gamepad fa-3x m-3" aria-hidden="true"></i></a>
                     <figcaption class="caption">Video Games</figcaption>
                 </figure>
+                <div class="text-center mb-4">
+                    {% if session['username'] %}
+                        <a href="/users/{{ session['username'] }}/posts/new" class="btn btn-primary btn-lg">
+                            <i class="fas fa-plus"></i> Add a Review
+                        </a>
+                    {% else %}
+                        <a href="/login" class="btn btn-secondary btn-lg">
+                            <i class="fas fa-sign-in-alt"></i> Login to Add a Review
+                        </a>
+                    {% endif %}
+                </div>
             </div>
             <hr>
         </div>

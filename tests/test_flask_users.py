@@ -4,7 +4,7 @@ from app import app
 from models import db, User, Tag, Post, PostTag
 
 # Use test database and don't clutter tests with SQL
-app.config['SQLALCHEMY_DATABASE_URI'] = 'postgres://vlpbjjer:kTGa7Pew6zSWQco2gAJ67p1s0Kx_LeuL@mahmud.db.elephantsql.com/vlpbjjer'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://neondb_owner:npg_AQr3sIc6ifZe@ep-small-meadow-ah7798bl-pooler.c-3.us-east-1.aws.neon.tech/blogly-db?sslmode=require&channel_binding=require'
 app.config['SQLALCHEMY_ECHO'] = False
 
 # Make Flask errors be real errors, rather than HTML pages with error info

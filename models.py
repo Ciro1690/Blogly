@@ -75,18 +75,29 @@ class User(db.Model):
 
         return cls.query.order_by(cls.last_name, cls.first_name).all()
 
-# models.py
-
 class Post(db.Model):
     __tablename__ = "posts"
+
     id = db.Column(db.Integer, primary_key=True)
-    # other columns...
+    title = db.Column(db.String(100), nullable=False)
+    content = db.Column(db.Text, nullable=False)
+    rating = db.Column(db.Integer, nullable=True)
+    created_at = db.Column(db.DateTime, nullable=False, default=datetime.datetime.utcnow)
+    updated_at = db.Column(db.DateTime, nullable=False, default=datetime.datetime.utcnow, onupdate=datetime.datetime.utcnow)
+
+    username = db.Column(db.String(20), db.ForeignKey('users.username'), nullable=False)
+    user = db.relationship('User', backref='posts')
 
     tags = db.relationship(
         "Tag",
-        secondary="post_tags",  # points to the association table
+        secondary="post_tags",
         back_populates="posts"
     )
+
+    @classmethod
+    def five_recent_posts(cls):
+        """Return the five most recent posts, newest first."""
+        return cls.query.order_by(cls.created_at.desc()).limit(5).all()
 
 class Tag(db.Model):
     __tablename__ = "tags"
